@@ -1,0 +1,23 @@
+# Source files
+src/
+examples/
+tests/
+*.test.ts
+
+# Build artifacts (keep dist/)
+node_modules/
+
+# Config files
+tsconfig.json
+vitest.config.ts
+
+# Git
+.git/
+.gitignore
+
+# Plans and docs
+.windsurf/
+*.md
+
+# Logs
+*.log
