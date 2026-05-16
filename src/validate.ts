@@ -28,8 +28,11 @@ export async function validate(
   const customMessages = options.messages || {}
   const customAttributes = options.attributes || {}
 
-  for (const field in rules) {
-    const ruleString = rules[field]
+  // Expand wildcard rules
+  const expandedRules = expandWildcardRules(rules, data)
+
+  for (const field in expandedRules) {
+    const ruleString = expandedRules[field]
     const parsedRules = parseRuleString(ruleString)
     const fieldValue = getNestedValue(data, field)
 
@@ -189,4 +192,53 @@ function interpolateMessage(
   }
 
   return result
+}
+
+function expandWildcardRules(rules: Rules, data: Record<string, any>): Rules {
+  const expanded: Rules = {}
+
+  for (const field in rules) {
+    if (field.includes('*')) {
+      // Expand wildcard field
+      const expandedFields = expandWildcardField(field, data)
+      for (const expandedField of expandedFields) {
+        expanded[expandedField] = rules[field]
+      }
+    } else {
+      expanded[field] = rules[field]
+    }
+  }
+
+  return expanded
+}
+
+function expandWildcardField(field: string, data: Record<string, any>): string[] {
+  const parts = field.split('.')
+  const expanded: string[] = []
+
+  function expand(currentPath: string[], remainingParts: string[], currentData: any) {
+    if (remainingParts.length === 0) {
+      expanded.push(currentPath.join('.'))
+      return
+    }
+
+    const part = remainingParts[0]
+    const rest = remainingParts.slice(1)
+
+    if (part === '*') {
+      // Wildcard - iterate array
+      if (Array.isArray(currentData)) {
+        for (let i = 0; i < currentData.length; i++) {
+          expand([...currentPath, String(i)], rest, currentData[i])
+        }
+      }
+    } else {
+      // Regular part
+      const nextData = currentData?.[part]
+      expand([...currentPath, part], rest, nextData)
+    }
+  }
+
+  expand([], parts, data)
+  return expanded
 }

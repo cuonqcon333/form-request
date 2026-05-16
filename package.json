@@ -4,8 +4,6 @@
   "description": "Laravel-inspired request validation for Express. Simple, readable, and developer-friendly.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist/index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "vitest",
