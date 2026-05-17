@@ -1,6 +1,6 @@
 {
   "name": "@caplab/form-request",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Laravel-inspired request validation for Express. Simple, readable, and developer-friendly.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
