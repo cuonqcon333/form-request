@@ -18,6 +18,16 @@ const defaultMessages: Record<string, string> = {
   confirmed: 'The :field confirmation does not match.',
   in: 'The :field must be one of: :values.',
   required_if: 'The :field field is required when :other is :value.',
+  sometimes: 'The :field is optional.',
+  url: 'The :field must be a valid URL.',
+  date: 'The :field must be a valid date.',
+  regex: 'The :field format is invalid.',
+  digits: 'The :field must be :length digits.',
+  digits_between: 'The :field must be between :min and :max digits.',
+  alpha_num: 'The :field must only contain letters and numbers.',
+  required_unless: 'The :field field is required unless :other is :value.',
+  required_with: 'The :field field is required when :values is present.',
+  required_without: 'The :field field is required when :values is not present.',
 }
 
 export async function validate(
@@ -189,7 +199,8 @@ function interpolateMessage(
   // Replace rule-specific parameters
   if (params.length > 0) {
     result = result.replace(/:min/g, params[0])
-    result = result.replace(/:max/g, params[0])
+    result = result.replace(/:max/g, params[1] || params[0])
+    result = result.replace(/:length/g, params[0])
     result = result.replace(/:other/g, params[0])
     result = result.replace(/:value/g, params[1] || '')
     result = result.replace(/:values/g, params.join(', '))

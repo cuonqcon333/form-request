@@ -106,6 +106,115 @@ export const required_if: RuleHandler = (value, params, data) => {
   return true
 }
 
+export const sometimes: RuleHandler = () => {
+  // Always pass - this rule is handled in validation logic
+  return true
+}
+
+export const bail: RuleHandler = () => {
+  // Always pass - bail behavior is handled in validation logic (break on first error)
+  return true
+}
+
+export const url: RuleHandler = (value) => {
+  if (typeof value !== 'string') return false
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const date: RuleHandler = (value) => {
+  if (typeof value !== 'string' && !(value instanceof Date)) return false
+  const timestamp = Date.parse(value as string)
+  return !isNaN(timestamp)
+}
+
+export const regex: RuleHandler = (value, params) => {
+  if (!params || params.length === 0) return false
+  if (typeof value !== 'string') return false
+  try {
+    const pattern = new RegExp(params[0])
+    return pattern.test(value)
+  } catch {
+    return false
+  }
+}
+
+export const digits: RuleHandler = (value, params) => {
+  if (!params || params.length === 0) return false
+  const length = parseInt(params[0], 10)
+  if (isNaN(length)) return false
+  const str = String(value)
+  return /^\d+$/.test(str) && str.length === length
+}
+
+export const digits_between: RuleHandler = (value, params) => {
+  if (!params || params.length < 2) return false
+  const minLength = parseInt(params[0], 10)
+  const maxLength = parseInt(params[1], 10)
+  if (isNaN(minLength) || isNaN(maxLength)) return false
+  const str = String(value)
+  return /^\d+$/.test(str) && str.length >= minLength && str.length <= maxLength
+}
+
+export const alpha_num: RuleHandler = (value) => {
+  if (typeof value !== 'string') return false
+  return /^[a-zA-Z0-9]+$/.test(value)
+}
+
+export const required_unless: RuleHandler = (value, params, data) => {
+  if (!params || params.length < 2) return true
+  
+  const otherField = params[0]
+  const expectedValue = params[1]
+  
+  const otherValue = getNestedValue(data || {}, otherField)
+  
+  // If other field does NOT match expected value, current field is required
+  if (String(otherValue) !== expectedValue) {
+    return value !== undefined && value !== null && value !== ''
+  }
+  
+  return true
+}
+
+export const required_with: RuleHandler = (value, params, data) => {
+  if (!params || params.length === 0) return true
+  
+  // Check if any of the specified fields are present
+  const hasAnyField = params.some(field => {
+    const fieldValue = getNestedValue(data || {}, field)
+    return fieldValue !== undefined && fieldValue !== null && fieldValue !== ''
+  })
+  
+  // If any field is present, current field is required
+  if (hasAnyField) {
+    return value !== undefined && value !== null && value !== ''
+  }
+  
+  return true
+}
+
+export const required_without: RuleHandler = (value, params, data) => {
+  if (!params || params.length === 0) return true
+  
+  // Check if any of the specified fields are missing
+  const hasAnyMissingField = params.some(field => {
+    const fieldValue = getNestedValue(data || {}, field)
+    return fieldValue === undefined || fieldValue === null || fieldValue === ''
+  })
+  
+  // If any field is missing, current field is required
+  if (hasAnyMissingField) {
+    return value !== undefined && value !== null && value !== ''
+  }
+  
+  return true
+}
+
 function getNestedValue(obj: Record<string, any>, path: string): any {
   if (!obj || typeof obj !== 'object') {
     return undefined
@@ -148,6 +257,17 @@ rules.same = same
 rules.confirmed = confirmed
 rules.in = inRule
 rules.required_if = required_if
+rules.sometimes = sometimes
+rules.bail = bail
+rules.url = url
+rules.date = date
+rules.regex = regex
+rules.digits = digits
+rules.digits_between = digits_between
+rules.alpha_num = alpha_num
+rules.required_unless = required_unless
+rules.required_with = required_with
+rules.required_without = required_without
 
 export function extend(name: string, handler: RuleHandler) {
   rules[name] = handler
