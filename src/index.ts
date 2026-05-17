@@ -1,4 +1,4 @@
-export { validation } from './middleware'
+export { validation, validateRequest } from './middleware'
 export { FormRequest } from './FormRequest'
 export { validate } from './validate'
 export { extend } from './rules'

@@ -89,3 +89,30 @@ function formatErrors(errors: { field: string; message: string }[]): Record<stri
 
   return formatted
 }
+
+/**
+ * Middleware factory for FormRequest class validation
+ * Usage: router.post('/path', validateRequest(MessageRequest), controller)
+ */
+export function validateRequest(FormRequestClass: any, options: ValidationMiddlewareOptions = {}) {
+  const { autoResponse = true, formatError } = options
+
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Check if validation middleware is installed
+      if (!req.validate) {
+        throw new Error('Validation middleware not installed. Use app.use(validation()) first.')
+      }
+
+      // Validate using FormRequest class
+      await req.validate(FormRequestClass)
+      next()
+    } catch (error) {
+      // If autoResponse is disabled, pass error to next middleware
+      if (!autoResponse) {
+        next(error)
+      }
+      // Otherwise error is already handled by req.validate
+    }
+  }
+}

@@ -16,6 +16,8 @@ const defaultMessages: Record<string, string> = {
   max: 'The :field may not be greater than :max.',
   same: 'The :field must match :other.',
   confirmed: 'The :field confirmation does not match.',
+  in: 'The :field must be one of: :values.',
+  required_if: 'The :field field is required when :other is :value.',
 }
 
 export async function validate(
@@ -189,6 +191,8 @@ function interpolateMessage(
     result = result.replace(/:min/g, params[0])
     result = result.replace(/:max/g, params[0])
     result = result.replace(/:other/g, params[0])
+    result = result.replace(/:value/g, params[1] || '')
+    result = result.replace(/:values/g, params.join(', '))
   }
 
   return result

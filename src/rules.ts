@@ -83,6 +83,55 @@ export const confirmed: RuleHandler = (value, params, data) => {
   return value === (data?.[confirmationField])
 }
 
+export const inRule: RuleHandler = (value, params) => {
+  if (!params || params.length === 0) return false
+  return params.includes(String(value))
+}
+
+export const required_if: RuleHandler = (value, params, data) => {
+  if (!params || params.length < 2) return true
+  
+  const otherField = params[0]
+  const expectedValue = params[1]
+  
+  // Get nested value from data
+  const otherValue = getNestedValue(data || {}, otherField)
+  
+  // If other field matches expected value, current field is required
+  if (String(otherValue) === expectedValue) {
+    return value !== undefined && value !== null && value !== ''
+  }
+  
+  // Otherwise, field is optional
+  return true
+}
+
+function getNestedValue(obj: Record<string, any>, path: string): any {
+  if (!obj || typeof obj !== 'object') {
+    return undefined
+  }
+  
+  if (path in obj) {
+    return obj[path]
+  }
+  
+  if (!path.includes('.')) {
+    return obj[path]
+  }
+  
+  const parts = path.split('.')
+  let current = obj
+  
+  for (const part of parts) {
+    if (current === null || current === undefined) {
+      return undefined
+    }
+    current = current[part]
+  }
+  
+  return current
+}
+
 // Register built-in rules
 rules.required = required
 rules.nullable = nullable
@@ -97,6 +146,8 @@ rules.min = min
 rules.max = max
 rules.same = same
 rules.confirmed = confirmed
+rules.in = inRule
+rules.required_if = required_if
 
 export function extend(name: string, handler: RuleHandler) {
   rules[name] = handler

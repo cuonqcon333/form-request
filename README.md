@@ -5,7 +5,6 @@ Laravel-inspired request validation for Express.
 Simple, clean, and developer-friendly validation with automatic `422` responses and validated data extraction.
 
 [![npm version](https://badge.fury.io/js/@caplab%2Fform-request.svg)](https://www.npmjs.com/package/@caplab/form-request)
-[![Build Status](https://github.com/cuonqcon333/express-form-request/actions/workflows/ci.yml/badge.svg)](https://github.com/cuonqcon333/form-request/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
